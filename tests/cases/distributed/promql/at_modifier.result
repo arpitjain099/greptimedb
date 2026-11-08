@@ -663,14 +663,20 @@ TQL EXPLAIN (0, 240, '60s') timestamp(at_modifier_gauge @ 300);
 +---------------+-----------------------------------------------------------------------------------------------------------------------------------+
 | plan_type     | plan                                                                                                                              |
 +---------------+-----------------------------------------------------------------------------------------------------------------------------------+
-| logical_plan  | FusedSeries: timestamp(at_modifier_gauge @ 300.000)                                                                               |
+| logical_plan  | FusedSeries                                                                                                                       |
+|               | native_tree=[                                                                                                                     |
+|               | Instant: lookback 300000ms offset 0 on grid 0/60000x5 @ 300000ms timestamp                                                        |
+|               |   Input: raw samples source=0, contiguous                                                                                         |
+|               | ]                                                                                                                                 |
 |               |   MergeScan [is_placeholder=false, remote_input=[                                                                                 |
 |               | RawSeriesSource: metric=at_modifier_gauge, tags=[host], fields=[val]                                                              |
 |               |   TableScan: at_modifier_gauge, partial_filters=[ts > TimestampMillisecond(0, None) AND ts <= TimestampMillisecond(300000, None)] |
 |               | ]]                                                                                                                                |
-| physical_plan | FusedSeriesExec: timestamp(at_modifier_gauge @ 300.000)                                                                           |
-|               |   Instant: lookback 300000ms offset 0 on grid 0/60000x5 @ 300000ms timestamp                                                      |
-|               |     Input: raw samples source=0, contiguous                                                                                       |
+| physical_plan | FusedSeriesExec                                                                                                                   |
+|               | native_tree=[                                                                                                                     |
+|               | Instant: lookback 300000ms offset 0 on grid 0/60000x5 @ 300000ms timestamp                                                        |
+|               |   Input: raw samples source=0, contiguous                                                                                         |
+|               | ]                                                                                                                                 |
 |               |   CooperativeExec                                                                                                                 |
 |               |     MergeScanExec: REDACTED
 |               |                                                                                                                                   |

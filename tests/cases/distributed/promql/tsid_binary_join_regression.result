@@ -115,12 +115,14 @@ TQL ANALYZE (0, 5, '5s') tsid_binary_join_left / tsid_binary_join_right;
 +-+-+-+
 | stage | node | plan_|
 +-+-+-+
-| 0_| 0_|_FusedSeriesExec: tsid_binary_join_left / tsid_binary_join_right REDACTED
+| 0_| 0_|_FusedSeriesExec REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Binary: / ignoring [] one-to-one, REDACTED
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=0, contiguous, REDACTED
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=1, contiguous, REDACTED
+|_|_|_]_|
 |_|_|_SeriesRepartitionExec REDACTED
 |_|_|_MergeScanExec: REDACTED
 |_|_|_SeriesRepartitionExec REDACTED
@@ -156,25 +158,31 @@ TQL ANALYZE (0, 5, '5s') (tsid_binary_join_left + tsid_binary_join_right) / tsid
 +-+-+-+
 | stage | node | plan_|
 +-+-+-+
-| 0_| 0_|_FusedSeriesExec: (tsid_binary_join_left + tsid_binary_join_right) / tsid_binary_join_left REDACTED
+| 0_| 0_|_FusedSeriesExec REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Binary: / ignoring [] one-to-one, REDACTED
 |_|_|_Input: evaluated samples source=0, contiguous, REDACTED
 |_|_|_Input: evaluated samples source=1, contiguous, REDACTED
+|_|_|_]_|
 |_|_|_SeriesRepartitionExec REDACTED
-|_|_|_FusedSeriesExec: segment (output: series_frame) REDACTED
+|_|_|_FusedSeriesExec: (output: series_frame) REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Binary: + ignoring [] one-to-one, REDACTED
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=0, contiguous, REDACTED
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=1, contiguous, REDACTED
+|_|_|_]_|
 |_|_|_SeriesRepartitionExec REDACTED
 |_|_|_MergeScanExec: REDACTED
 |_|_|_SeriesRepartitionExec REDACTED
 |_|_|_MergeScanExec: REDACTED
 |_|_|_SeriesRepartitionExec REDACTED
-|_|_|_FusedSeriesExec: segment (output: series_frame) REDACTED
+|_|_|_FusedSeriesExec: (output: series_frame) REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=0, contiguous, REDACTED
+|_|_|_]_|
 |_|_|_MergeScanExec: REDACTED
 |_|_|_|
 | 1_| 0_|_SeriesRepartitionExec REDACTED
@@ -211,40 +219,50 @@ TQL ANALYZE (0, 5, '5s') ((tsid_binary_join_left + tsid_binary_join_right) * (ts
 +-+-+-+
 | stage | node | plan_|
 +-+-+-+
-| 0_| 0_|_FusedSeriesExec: ((tsid_binary_join_left + tsid_binary_join_right) * (tsid_binary_join_left - tsid_binary_join_third)) / (tsid_binary_join_left + 2) REDACTED
+| 0_| 0_|_FusedSeriesExec REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Binary: / ignoring [] one-to-one, REDACTED
 |_|_|_Input: evaluated samples source=1, contiguous, REDACTED
 |_|_|_Input: evaluated samples source=0, contiguous, REDACTED
+|_|_|_]_|
 |_|_|_SeriesRepartitionExec REDACTED
-|_|_|_FusedSeriesExec: segment (output: series_frame) REDACTED
+|_|_|_FusedSeriesExec: (output: series_frame) REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Binary: + ignoring [] one-to-one, REDACTED
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=0, contiguous, REDACTED
 |_|_|_Scalar: 2_|
+|_|_|_]_|
 |_|_|_MergeScanExec: REDACTED
 |_|_|_SeriesRepartitionExec REDACTED
-|_|_|_FusedSeriesExec: segment (output: series_frame) REDACTED
+|_|_|_FusedSeriesExec: (output: series_frame) REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Binary: * ignoring [] one-to-one, REDACTED
 |_|_|_Input: evaluated samples source=0, contiguous, REDACTED
 |_|_|_Input: evaluated samples source=1, contiguous, REDACTED
+|_|_|_]_|
 |_|_|_SeriesRepartitionExec REDACTED
-|_|_|_FusedSeriesExec: segment (output: series_frame) REDACTED
+|_|_|_FusedSeriesExec: (output: series_frame) REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Binary: + ignoring [] one-to-one, REDACTED
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=0, contiguous, REDACTED
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=1, contiguous, REDACTED
+|_|_|_]_|
 |_|_|_SeriesRepartitionExec REDACTED
 |_|_|_MergeScanExec: REDACTED
 |_|_|_SeriesRepartitionExec REDACTED
 |_|_|_MergeScanExec: REDACTED
 |_|_|_SeriesRepartitionExec REDACTED
-|_|_|_FusedSeriesExec: segment (output: series_frame) REDACTED
+|_|_|_FusedSeriesExec: (output: series_frame) REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Binary: - ignoring [] one-to-one, REDACTED
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=0, contiguous, REDACTED
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=1, contiguous, REDACTED
+|_|_|_]_|
 |_|_|_SeriesRepartitionExec REDACTED
 |_|_|_MergeScanExec: REDACTED
 |_|_|_SeriesRepartitionExec REDACTED
@@ -294,12 +312,14 @@ TQL ANALYZE (0, 5, '5s') tsid_binary_join_left / ignoring(host) tsid_binary_join
 +-+-+-+
 | stage | node | plan_|
 +-+-+-+
-| 0_| 0_|_FusedSeriesExec: tsid_binary_join_left / ignoring (host) tsid_binary_join_right REDACTED
+| 0_| 0_|_FusedSeriesExec REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Binary: / ignoring [host] one-to-one, REDACTED
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=0, contiguous, REDACTED
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=1, contiguous, REDACTED
+|_|_|_]_|
 |_|_|_SeriesRepartitionExec REDACTED
 |_|_|_MergeScanExec: REDACTED
 |_|_|_SeriesRepartitionExec REDACTED
@@ -334,12 +354,14 @@ TQL ANALYZE (0, 5, '5s') tsid_binary_join_left / on(job) tsid_binary_join_right_
 +-+-+-+
 | stage | node | plan_|
 +-+-+-+
-| 0_| 0_|_FusedSeriesExec: tsid_binary_join_left / on (job) tsid_binary_join_right_by_job REDACTED
+| 0_| 0_|_FusedSeriesExec REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Binary: / on [job] one-to-one, REDACTED
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=0, contiguous, REDACTED
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=1, contiguous, REDACTED
+|_|_|_]_|
 |_|_|_SeriesRepartitionExec REDACTED
 |_|_|_MergeScanExec: REDACTED
 |_|_|_SeriesRepartitionExec REDACTED
@@ -375,12 +397,14 @@ TQL ANALYZE (0, 5, '5s') tsid_binary_join_left > tsid_binary_join_right;
 +-+-+-+
 | stage | node | plan_|
 +-+-+-+
-| 0_| 0_|_FusedSeriesExec: tsid_binary_join_left > tsid_binary_join_right REDACTED
+| 0_| 0_|_FusedSeriesExec REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Binary: > ignoring [] one-to-one, REDACTED
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=0, contiguous, REDACTED
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=1, contiguous, REDACTED
+|_|_|_]_|
 |_|_|_SeriesRepartitionExec REDACTED
 |_|_|_MergeScanExec: REDACTED
 |_|_|_SeriesRepartitionExec REDACTED
@@ -415,12 +439,14 @@ TQL ANALYZE (0, 5, '5s') tsid_binary_join_left > bool tsid_binary_join_right;
 +-+-+-+
 | stage | node | plan_|
 +-+-+-+
-| 0_| 0_|_FusedSeriesExec: tsid_binary_join_left > bool tsid_binary_join_right REDACTED
+| 0_| 0_|_FusedSeriesExec REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Binary: > bool ignoring [] one-to-one, REDACTED
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=0, contiguous, REDACTED
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=1, contiguous, REDACTED
+|_|_|_]_|
 |_|_|_SeriesRepartitionExec REDACTED
 |_|_|_MergeScanExec: REDACTED
 |_|_|_SeriesRepartitionExec REDACTED
@@ -455,27 +481,33 @@ TQL ANALYZE (0, 5, '5s') ((tsid_binary_join_left > tsid_binary_join_right) / tsi
 +-+-+-+
 | stage | node | plan_|
 +-+-+-+
-| 0_| 0_|_FusedSeriesExec: ((tsid_binary_join_left > tsid_binary_join_right) / tsid_binary_join_left) * 100 REDACTED
+| 0_| 0_|_FusedSeriesExec REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Binary: * ignoring [] one-to-one, REDACTED
 |_|_|_Binary: / ignoring [] one-to-one, REDACTED
 |_|_|_Input: evaluated samples source=0, contiguous, REDACTED
 |_|_|_Input: evaluated samples source=1, contiguous, REDACTED
 |_|_|_Scalar: 100_|
+|_|_|_]_|
 |_|_|_SeriesRepartitionExec REDACTED
-|_|_|_FusedSeriesExec: segment (output: series_frame) REDACTED
+|_|_|_FusedSeriesExec: (output: series_frame) REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Binary: > ignoring [] one-to-one, REDACTED
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=0, contiguous, REDACTED
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=1, contiguous, REDACTED
+|_|_|_]_|
 |_|_|_SeriesRepartitionExec REDACTED
 |_|_|_MergeScanExec: REDACTED
 |_|_|_SeriesRepartitionExec REDACTED
 |_|_|_MergeScanExec: REDACTED
 |_|_|_SeriesRepartitionExec REDACTED
-|_|_|_FusedSeriesExec: segment (output: series_frame) REDACTED
+|_|_|_FusedSeriesExec: (output: series_frame) REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=0, contiguous, REDACTED
+|_|_|_]_|
 |_|_|_MergeScanExec: REDACTED
 |_|_|_|
 | 1_| 0_|_SeriesRepartitionExec REDACTED
@@ -511,35 +543,45 @@ TQL ANALYZE (0, 5, '5s') ((tsid_binary_join_left > bool tsid_binary_join_right) 
 +-+-+-+
 | stage | node | plan_|
 +-+-+-+
-| 0_| 0_|_FusedSeriesExec: ((tsid_binary_join_left > bool tsid_binary_join_right) + tsid_binary_join_left) / tsid_binary_join_left REDACTED
+| 0_| 0_|_FusedSeriesExec REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Binary: / ignoring [] one-to-one, REDACTED
 |_|_|_Input: evaluated samples source=1, contiguous, REDACTED
 |_|_|_Input: evaluated samples source=0, contiguous, REDACTED
+|_|_|_]_|
 |_|_|_SeriesRepartitionExec REDACTED
-|_|_|_FusedSeriesExec: segment (output: series_frame) REDACTED
+|_|_|_FusedSeriesExec: (output: series_frame) REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=0, contiguous, REDACTED
+|_|_|_]_|
 |_|_|_MergeScanExec: REDACTED
 |_|_|_SeriesRepartitionExec REDACTED
-|_|_|_FusedSeriesExec: segment (output: series_frame) REDACTED
+|_|_|_FusedSeriesExec: (output: series_frame) REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Binary: + ignoring [] one-to-one, REDACTED
 |_|_|_Input: evaluated samples source=0, contiguous, REDACTED
 |_|_|_Input: evaluated samples source=1, contiguous, REDACTED
+|_|_|_]_|
 |_|_|_SeriesRepartitionExec REDACTED
-|_|_|_FusedSeriesExec: segment (output: series_frame) REDACTED
+|_|_|_FusedSeriesExec: (output: series_frame) REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Binary: > bool ignoring [] one-to-one, REDACTED
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=0, contiguous, REDACTED
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=1, contiguous, REDACTED
+|_|_|_]_|
 |_|_|_SeriesRepartitionExec REDACTED
 |_|_|_MergeScanExec: REDACTED
 |_|_|_SeriesRepartitionExec REDACTED
 |_|_|_MergeScanExec: REDACTED
 |_|_|_SeriesRepartitionExec REDACTED
-|_|_|_FusedSeriesExec: segment (output: series_frame) REDACTED
+|_|_|_FusedSeriesExec: (output: series_frame) REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=0, contiguous, REDACTED
+|_|_|_]_|
 |_|_|_MergeScanExec: REDACTED
 |_|_|_|
 | 1_| 0_|_SeriesRepartitionExec REDACTED
@@ -581,25 +623,33 @@ TQL ANALYZE (0, 5, '5s') (tsid_binary_join_left or tsid_binary_join_right) / tsi
 +-+-+-+
 | stage | node | plan_|
 +-+-+-+
-| 0_| 0_|_FusedSeriesExec: (tsid_binary_join_left or tsid_binary_join_right) / tsid_binary_join_left REDACTED
+| 0_| 0_|_FusedSeriesExec REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Binary: / ignoring [] one-to-one, REDACTED
 |_|_|_Set: or ignoring [], REDACTED
 |_|_|_Input: evaluated samples source=0, contiguous, REDACTED
 |_|_|_Input: evaluated samples source=1, contiguous, REDACTED
 |_|_|_Input: evaluated samples source=2, contiguous, REDACTED
-|_|_|_FusedSeriesExec: segment (output: series_frame) REDACTED
+|_|_|_]_|
+|_|_|_FusedSeriesExec: (output: series_frame) REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=0, contiguous, REDACTED
+|_|_|_]_|
 |_|_|_CooperativeExec REDACTED
 |_|_|_MergeScanExec: REDACTED
-|_|_|_FusedSeriesExec: segment (output: series_frame) REDACTED
+|_|_|_FusedSeriesExec: (output: series_frame) REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=0, contiguous, REDACTED
+|_|_|_]_|
 |_|_|_CooperativeExec REDACTED
 |_|_|_MergeScanExec: REDACTED
-|_|_|_FusedSeriesExec: segment (output: series_frame) REDACTED
+|_|_|_FusedSeriesExec: (output: series_frame) REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=0, contiguous, REDACTED
+|_|_|_]_|
 |_|_|_CooperativeExec REDACTED
 |_|_|_MergeScanExec: REDACTED
 |_|_|_|
@@ -637,25 +687,31 @@ TQL ANALYZE (0, 5, '5s') (tsid_binary_join_left / ignoring(host) group_left tsid
 +-+-+-+
 | stage | node | plan_|
 +-+-+-+
-| 0_| 0_|_FusedSeriesExec: (tsid_binary_join_left / ignoring (host) group_left () tsid_binary_join_right) / tsid_binary_join_left REDACTED
+| 0_| 0_|_FusedSeriesExec REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Binary: / ignoring [] one-to-one, REDACTED
 |_|_|_Input: evaluated samples source=0, contiguous, REDACTED
 |_|_|_Input: evaluated samples source=1, contiguous, REDACTED
+|_|_|_]_|
 |_|_|_SeriesRepartitionExec REDACTED
-|_|_|_FusedSeriesExec: segment (output: series_frame) REDACTED
+|_|_|_FusedSeriesExec: (output: series_frame) REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Binary: / ignoring [host] many-to-one [], REDACTED
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=0, contiguous, REDACTED
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=1, contiguous, REDACTED
+|_|_|_]_|
 |_|_|_SeriesRepartitionExec REDACTED
 |_|_|_MergeScanExec: REDACTED
 |_|_|_SeriesRepartitionExec REDACTED
 |_|_|_MergeScanExec: REDACTED
 |_|_|_SeriesRepartitionExec REDACTED
-|_|_|_FusedSeriesExec: segment (output: series_frame) REDACTED
+|_|_|_FusedSeriesExec: (output: series_frame) REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x2, REDACTED
 |_|_|_Input: raw samples source=0, contiguous, REDACTED
+|_|_|_]_|
 |_|_|_MergeScanExec: REDACTED
 |_|_|_|
 | 1_| 0_|_SeriesRepartitionExec REDACTED

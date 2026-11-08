@@ -30,14 +30,25 @@ TQL EXPLAIN (0, 10, '5s') sum by(k)(rate(native_ea[10s]));
 +---------------+-----------------------------------------------------------------------------------------------------------------------------+
 | plan_type     | plan                                                                                                                        |
 +---------------+-----------------------------------------------------------------------------------------------------------------------------+
-| logical_plan  | FusedSeries: sum by (k) (rate(native_ea[10s]))                                                                              |
+| logical_plan  | FusedSeries                                                                                                                 |
+|               | native_tree=[                                                                                                               |
+|               | Aggregate: sum by [k] final                                                                                                 |
+|               |   Input: aggregate state                                                                                                    |
+|               | ]                                                                                                                           |
 |               |   MergeScan [is_placeholder=false, remote_input=[                                                                           |
-|               | FusedSeries: sum by (k) (rate(native_ea[10s])) (output: series_frame)                                                       |
+|               | FusedSeries: (output: series_frame)                                                                                         |
+|               | native_tree=[                                                                                                               |
+|               | Aggregate: sum by [k] partial                                                                                               |
+|               |   Window: rate [10000ms] offset 0 anchor - on grid 0/5000x3                                                                 |
+|               |     Input: raw samples source=0, contiguous                                                                                 |
+|               | ]                                                                                                                           |
 |               |   TableScan: native_ea, partial_filters=[j > TimestampMillisecond(-10000, None) AND j <= TimestampMillisecond(10000, None)] |
 |               | ]]                                                                                                                          |
-| physical_plan | FusedSeriesExec: sum by (k) (rate(native_ea[10s]))                                                                          |
-|               |   Aggregate: sum by [k] final                                                                                               |
-|               |     Input: aggregate state                                                                                                  |
+| physical_plan | FusedSeriesExec                                                                                                             |
+|               | native_tree=[                                                                                                               |
+|               | Aggregate: sum by [k] final                                                                                                 |
+|               |   Input: aggregate state                                                                                                    |
+|               | ]                                                                                                                           |
 |               |   SeriesRepartitionExec: outputs=4, input_partitions=1                                                                      |
 |               |     MergeScanExec: REDACTED
 |               |                                                                                                                             |
@@ -55,8 +66,17 @@ TQL EXPLAIN VERBOSE (0, 10, '5s') sum by(k)(rate(native_ea[10s]));
 +-+-+
 | plan_type_| plan_|
 +-+-+
-| initial_logical_plan_| FusedSeries: sum by (k) (rate(native_ea[10s]))_|
-|_|_FusedSeries: sum by (k) (rate(native_ea[10s])) (output: series_frame)_|
+| initial_logical_plan_| FusedSeries_|
+|_| native_tree=[_|
+|_| Aggregate: sum by [k] final_|
+|_|_Input: aggregate state_|
+|_| ]_|
+|_|_FusedSeries: (output: series_frame)_|
+|_| native_tree=[_|
+|_| Aggregate: sum by [k] partial_|
+|_|_Window: rate [10000ms] offset 0 anchor - on grid 0/5000x3_|
+|_|_Input: raw samples source=0, contiguous_|
+|_| ]_|
 |_|_TableScan: native_ea, partial_filters=[j > TimestampMillisecond(-10000, None) AND j <= TimestampMillisecond(10000, None)]_|
 | logical_plan after apply_function_rewrites_| SAME TEXT AS ABOVE_|
 | logical_plan after count_wildcard_to_time_index_rule_| SAME TEXT AS ABOVE_|
@@ -65,9 +85,18 @@ TQL EXPLAIN VERBOSE (0, 10, '5s') sum by(k)(rate(native_ea[10s]));
 | logical_plan after resolve_grouping_function_| SAME TEXT AS ABOVE_|
 | logical_plan after type_coercion_| SAME TEXT AS ABOVE_|
 | logical_plan after ConstNormalizationRule_| SAME TEXT AS ABOVE_|
-| logical_plan after DistPlannerAnalyzer_| FusedSeries: sum by (k) (rate(native_ea[10s]))_|
+| logical_plan after DistPlannerAnalyzer_| FusedSeries_|
+|_| native_tree=[_|
+|_| Aggregate: sum by [k] final_|
+|_|_Input: aggregate state_|
+|_| ]_|
 |_|_MergeScan [is_placeholder=false, remote_input=[_|
-|_| FusedSeries: sum by (k) (rate(native_ea[10s])) (output: series_frame)_|
+|_| FusedSeries: (output: series_frame)_|
+|_| native_tree=[_|
+|_| Aggregate: sum by [k] partial_|
+|_|_Window: rate [10000ms] offset 0 anchor - on grid 0/5000x3_|
+|_|_Input: raw samples source=0, contiguous_|
+|_| ]_|
 |_|_TableScan: native_ea, partial_filters=[j > TimestampMillisecond(-10000, None) AND j <= TimestampMillisecond(10000, None)]_|
 |_| ]]_|
 | logical_plan after JsonSchemaConcretizeRule_| SAME TEXT AS ABOVE_|
@@ -101,33 +130,50 @@ TQL EXPLAIN VERBOSE (0, 10, '5s') sum by(k)(rate(native_ea[10s]));
 | logical_plan after optimize_projections_| SAME TEXT AS ABOVE_|
 | logical_plan after ScanHintRule_| SAME TEXT AS ABOVE_|
 | logical_plan after JsonTypeConcretizeRule_| SAME TEXT AS ABOVE_|
-| logical_plan_| FusedSeries: sum by (k) (rate(native_ea[10s]))_|
+| logical_plan_| FusedSeries_|
+|_| native_tree=[_|
+|_| Aggregate: sum by [k] final_|
+|_|_Input: aggregate state_|
+|_| ]_|
 |_|_MergeScan [is_placeholder=false, remote_input=[_|
-|_| FusedSeries: sum by (k) (rate(native_ea[10s])) (output: series_frame)_|
+|_| FusedSeries: (output: series_frame)_|
+|_| native_tree=[_|
+|_| Aggregate: sum by [k] partial_|
+|_|_Window: rate [10000ms] offset 0 anchor - on grid 0/5000x3_|
+|_|_Input: raw samples source=0, contiguous_|
+|_| ]_|
 |_|_TableScan: native_ea, partial_filters=[j > TimestampMillisecond(-10000, None) AND j <= TimestampMillisecond(10000, None)]_|
 |_| ]]_|
-| initial_physical_plan_| FusedSeriesExec: sum by (k) (rate(native_ea[10s]))_|
-|_|_Aggregate: sum by [k] final_|
+| initial_physical_plan_| FusedSeriesExec_|
+|_| native_tree=[_|
+|_| Aggregate: sum by [k] final_|
 |_|_Input: aggregate state_|
+|_| ]_|
 |_|_SeriesRepartitionExec: REDACTED
 |_|_MergeScanExec: REDACTED
 |_|_|
-| initial_physical_plan_with_stats_| FusedSeriesExec: sum by (k) (rate(native_ea[10s]))_|
-|_|_Aggregate: sum by [k] final_|
-|_|_Input: aggregate state, statistics=[Rows=Absent, Bytes=Absent, [(Col[0]:),(Col[1]:),(Col[2]:)]]_|
+| initial_physical_plan_with_stats_| FusedSeriesExec_|
+|_| native_tree=[_|
+|_| Aggregate: sum by [k] final_|
+|_|_Input: aggregate state_|
+|_| ], statistics=[Rows=Absent, Bytes=Absent, [(Col[0]:),(Col[1]:),(Col[2]:)]]_|
 |_|_SeriesRepartitionExec: REDACTED
 |_|_MergeScanExec: REDACTED
 |_|_|
-| initial_physical_plan_with_schema_| FusedSeriesExec: sum by (k) (rate(native_ea[10s]))_|
-|_|_Aggregate: sum by [k] final_|
-|_|_Input: aggregate state, schema=[j:Timestamp(ms), i:Float64;N, k:Utf8;N]_|
+| initial_physical_plan_with_schema_| FusedSeriesExec_|
+|_| native_tree=[_|
+|_| Aggregate: sum by [k] final_|
+|_|_Input: aggregate state_|
+|_| ], schema=[j:Timestamp(ms), i:Float64;N, k:Utf8;N]_|
 |_|_SeriesRepartitionExec: REDACTED
 |_|_MergeScanExec: REDACTED
 |_|_|
 | physical_plan after OutputRequirements_| OutputRequirementExec: order_by=[], dist_by=Unspecified_|
-|_|_FusedSeriesExec: sum by (k) (rate(native_ea[10s]))_|
-|_|_Aggregate: sum by [k] final_|
+|_|_FusedSeriesExec_|
+|_| native_tree=[_|
+|_| Aggregate: sum by [k] final_|
 |_|_Input: aggregate state_|
+|_| ]_|
 |_|_SeriesRepartitionExec: REDACTED
 |_|_MergeScanExec: REDACTED
 |_|_|
@@ -143,9 +189,11 @@ TQL EXPLAIN VERBOSE (0, 10, '5s') sum by(k)(rate(native_ea[10s]));
 | physical_plan after CombinePartialFinalAggregate_| SAME TEXT AS ABOVE_|
 | physical_plan after OptimizeAggregateOrder_| SAME TEXT AS ABOVE_|
 | physical_plan after ProjectionPushdown_| SAME TEXT AS ABOVE_|
-| physical_plan after OutputRequirements_| FusedSeriesExec: sum by (k) (rate(native_ea[10s]))_|
-|_|_Aggregate: sum by [k] final_|
+| physical_plan after OutputRequirements_| FusedSeriesExec_|
+|_| native_tree=[_|
+|_| Aggregate: sum by [k] final_|
 |_|_Input: aggregate state_|
+|_| ]_|
 |_|_SeriesRepartitionExec: REDACTED
 |_|_MergeScanExec: REDACTED
 |_|_|
@@ -164,21 +212,27 @@ TQL EXPLAIN VERBOSE (0, 10, '5s') sum by(k)(rate(native_ea[10s]));
 | physical_plan after RemoveDuplicateRule_| SAME TEXT AS ABOVE_|
 | physical_plan after SeriesFrameOutput_| SAME TEXT AS ABOVE_|
 | physical_plan after SanityCheckPlan_| SAME TEXT AS ABOVE_|
-| physical_plan_| FusedSeriesExec: sum by (k) (rate(native_ea[10s]))_|
-|_|_Aggregate: sum by [k] final_|
+| physical_plan_| FusedSeriesExec_|
+|_| native_tree=[_|
+|_| Aggregate: sum by [k] final_|
 |_|_Input: aggregate state_|
+|_| ]_|
 |_|_SeriesRepartitionExec: REDACTED
 |_|_MergeScanExec: REDACTED
 |_|_|
-| physical_plan_with_stats_| FusedSeriesExec: sum by (k) (rate(native_ea[10s]))_|
-|_|_Aggregate: sum by [k] final_|
-|_|_Input: aggregate state, statistics=[Rows=Absent, Bytes=Absent, [(Col[0]:),(Col[1]:),(Col[2]:)]]_|
+| physical_plan_with_stats_| FusedSeriesExec_|
+|_| native_tree=[_|
+|_| Aggregate: sum by [k] final_|
+|_|_Input: aggregate state_|
+|_| ], statistics=[Rows=Absent, Bytes=Absent, [(Col[0]:),(Col[1]:),(Col[2]:)]]_|
 |_|_SeriesRepartitionExec: REDACTED
 |_|_MergeScanExec: REDACTED
 |_|_|
-| physical_plan_with_schema_| FusedSeriesExec: sum by (k) (rate(native_ea[10s]))_|
-|_|_Aggregate: sum by [k] final_|
-|_|_Input: aggregate state, schema=[j:Timestamp(ms), i:Float64;N, k:Utf8;N]_|
+| physical_plan_with_schema_| FusedSeriesExec_|
+|_| native_tree=[_|
+|_| Aggregate: sum by [k] final_|
+|_|_Input: aggregate state_|
+|_| ], schema=[j:Timestamp(ms), i:Float64;N, k:Utf8;N]_|
 |_|_SeriesRepartitionExec: REDACTED
 |_|_MergeScanExec: REDACTED
 |_|_|
@@ -199,17 +253,21 @@ TQL ANALYZE (0, 10, '5s') sum by(k)(rate(native_ea[10s]));
 +-+-+-+
 | stage | node | plan|
 +-+-+-+
-| 0     | 0    |  FusedSeriesExec: sum by (k) (rate(native_ea[10s])) metrics=[]|
-|       |      |    Aggregate: sum by [k] final, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, evaluated_grid_points: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
-|       |      |      Input: aggregate state, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+| 0     | 0    |  FusedSeriesExec metrics=[]|
+|       |      |  native_tree=[|
+|       |      |  Aggregate: sum by [k] final, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, evaluated_grid_points: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+|       |      |    Input: aggregate state, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+|       |      |  ]|
 |       |      |   SeriesRepartitionExec metrics=[]|
 |       |      |     MergeScanExec: REDACTED
 |       |      ||
 | 1     | 0    |  SeriesRepartitionExec metrics=[]|
-|       |      |   FusedSeriesExec: sum by (k) (rate(native_ea[10s])) (output: series_frame) metrics=[]|
-|       |      |     Aggregate: sum by [k] partial, metrics=[input_batches: 2, output_batches: 4, input_samples: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
-|       |      |       Window: rate [10000ms] offset 0 anchor - on grid 0/5000x3, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, evaluated_grid_points: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
-|       |      |         Input: raw samples source=0, contiguous, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+|       |      |   FusedSeriesExec: (output: series_frame) metrics=[]|
+|       |      |   native_tree=[|
+|       |      |   Aggregate: sum by [k] partial, metrics=[input_batches: 2, output_batches: 4, input_samples: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+|       |      |     Window: rate [10000ms] offset 0 anchor - on grid 0/5000x3, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, evaluated_grid_points: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+|       |      |       Input: raw samples source=0, contiguous, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+|       |      |   ]|
 |       |      |     CooperativeExec metrics=[]|
 |       |      |       SeriesScanExec REDACTED
 |       |      ||
@@ -234,10 +292,12 @@ TQL ANALYZE (0, 10, '5s') abs(rate(native_ea[10s]));
 | 0     | 0    |  CooperativeExec metrics=[]|
 |       |      |   MergeScanExec: REDACTED
 |       |      ||
-| 1     | 0    |  FusedSeriesExec: abs(rate(native_ea[10s])) metrics=[]|
-|       |      |    Map: abs, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, evaluated_grid_points: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
-|       |      |      Window: rate [10000ms] offset 0 anchor - on grid 0/5000x3, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, evaluated_grid_points: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
-|       |      |        Input: raw samples source=0, contiguous, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+| 1     | 0    |  FusedSeriesExec metrics=[]|
+|       |      |  native_tree=[|
+|       |      |  Map: abs, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, evaluated_grid_points: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+|       |      |    Window: rate [10000ms] offset 0 anchor - on grid 0/5000x3, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, evaluated_grid_points: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+|       |      |      Input: raw samples source=0, contiguous, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+|       |      |  ]|
 |       |      |   CooperativeExec metrics=[]|
 |       |      |     SeriesScanExec REDACTED
 |       |      ||
@@ -259,7 +319,14 @@ TQL EXPLAIN (0, 10, '5s') native_ea + native_ebb;
 +-+-+
 | plan_type     | plan|
 +-+-+
-| logical_plan  | FusedSeries: native_ea + native_ebb|
+| logical_plan  | FusedSeries|
+|               | native_tree=[|
+|               | Binary: + ignoring [] one-to-one|
+|               |   Instant: lookback 300000ms offset 0 on grid 0/5000x3|
+|               |     Input: raw samples source=0, contiguous|
+|               |   Instant: lookback 300000ms offset 0 on grid 0/5000x3|
+|               |     Input: raw samples source=1, contiguous|
+|               | ]|
 |               |   MergeScan [is_placeholder=false, remote_input=[|
 |               | RawSeriesSource: metric=native_ea, tags=[k], fields=[i]|
 |               |   TableScan: native_ea, partial_filters=[j > TimestampMillisecond(-300000, None) AND j <= TimestampMillisecond(10000, None)]|
@@ -268,12 +335,14 @@ TQL EXPLAIN (0, 10, '5s') native_ea + native_ebb;
 |               | RawSeriesSource: metric=native_ebb, tags=[k], fields=[i]|
 |               |   TableScan: native_ebb, partial_filters=[j > TimestampMillisecond(-300000, None) AND j <= TimestampMillisecond(10000, None)]|
 |               | ]]|
-| physical_plan | FusedSeriesExec: native_ea + native_ebb|
-|               |   Binary: + ignoring [] one-to-one|
-|               |     Instant: lookback 300000ms offset 0 on grid 0/5000x3|
-|               |       Input: raw samples source=0, contiguous|
-|               |     Instant: lookback 300000ms offset 0 on grid 0/5000x3|
-|               |       Input: raw samples source=1, contiguous|
+| physical_plan | FusedSeriesExec|
+|               | native_tree=[|
+|               | Binary: + ignoring [] one-to-one|
+|               |   Instant: lookback 300000ms offset 0 on grid 0/5000x3|
+|               |     Input: raw samples source=0, contiguous|
+|               |   Instant: lookback 300000ms offset 0 on grid 0/5000x3|
+|               |     Input: raw samples source=1, contiguous|
+|               | ]|
 |               |   SeriesRepartitionExec: outputs=4, input_partitions=1|
 |               |     MergeScanExec: REDACTED
 |               |   SeriesRepartitionExec: outputs=4, input_partitions=1|
@@ -295,12 +364,14 @@ TQL ANALYZE (0, 10, '5s') native_ea + native_ebb;
 +-+-+-+
 | stage | node | plan|
 +-+-+-+
-| 0     | 0    |  FusedSeriesExec: native_ea + native_ebb metrics=[]|
-|       |      |    Binary: + ignoring [] one-to-one, metrics=[input_batches: 4, output_batches: 2, input_samples: 8, evaluated_grid_points: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
-|       |      |      Instant: lookback 300000ms offset 0 on grid 0/5000x3, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, evaluated_grid_points: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
-|       |      |        Input: raw samples source=0, contiguous, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
-|       |      |      Instant: lookback 300000ms offset 0 on grid 0/5000x3, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, evaluated_grid_points: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
-|       |      |        Input: raw samples source=1, contiguous, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+| 0     | 0    |  FusedSeriesExec metrics=[]|
+|       |      |  native_tree=[|
+|       |      |  Binary: + ignoring [] one-to-one, metrics=[input_batches: 4, output_batches: 2, input_samples: 8, evaluated_grid_points: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+|       |      |    Instant: lookback 300000ms offset 0 on grid 0/5000x3, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, evaluated_grid_points: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+|       |      |      Input: raw samples source=0, contiguous, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+|       |      |    Instant: lookback 300000ms offset 0 on grid 0/5000x3, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, evaluated_grid_points: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+|       |      |      Input: raw samples source=1, contiguous, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+|       |      |  ]|
 |       |      |   SeriesRepartitionExec metrics=[]|
 |       |      |     MergeScanExec: REDACTED
 |       |      |   SeriesRepartitionExec metrics=[]|
@@ -334,26 +405,32 @@ TQL ANALYZE (0, 10, '5s') native_ea and native_ebb;
 +-+-+-+
 | stage | node | plan|
 +-+-+-+
-| 0     | 0    |  FusedSeriesExec: native_ea and native_ebb metrics=[]|
-|       |      |    Set: and ignoring [], metrics=[input_batches: 4, output_batches: 2, input_samples: 8, evaluated_grid_points: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
-|       |      |      Input: evaluated samples source=0, contiguous, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, evaluated_grid_points: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
-|       |      |      Input: evaluated samples source=1, contiguous, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, evaluated_grid_points: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+| 0     | 0    |  FusedSeriesExec metrics=[]|
+|       |      |  native_tree=[|
+|       |      |  Set: and ignoring [], metrics=[input_batches: 4, output_batches: 2, input_samples: 8, evaluated_grid_points: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+|       |      |    Input: evaluated samples source=0, contiguous, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, evaluated_grid_points: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+|       |      |    Input: evaluated samples source=1, contiguous, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, evaluated_grid_points: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+|       |      |  ]|
 |       |      |   CooperativeExec metrics=[]|
 |       |      |     MergeScanExec: REDACTED
 |       |      |   CooperativeExec metrics=[]|
 |       |      |     MergeScanExec: REDACTED
 |       |      ||
 | 1     | 0    |  SeriesRepartitionExec metrics=[]|
-|       |      |   FusedSeriesExec: segment (output: series_frame) metrics=[]|
-|       |      |     Instant: lookback 300000ms offset 0 on grid 0/5000x3, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, evaluated_grid_points: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
-|       |      |       Input: raw samples source=0, contiguous, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+|       |      |   FusedSeriesExec: (output: series_frame) metrics=[]|
+|       |      |   native_tree=[|
+|       |      |   Instant: lookback 300000ms offset 0 on grid 0/5000x3, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, evaluated_grid_points: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+|       |      |     Input: raw samples source=0, contiguous, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+|       |      |   ]|
 |       |      |     CooperativeExec metrics=[]|
 |       |      |       SeriesScanExec REDACTED
 |       |      ||
 | 1     | 0    |  SeriesRepartitionExec metrics=[]|
-|       |      |   FusedSeriesExec: segment (output: series_frame) metrics=[]|
-|       |      |     Instant: lookback 300000ms offset 0 on grid 0/5000x3, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, evaluated_grid_points: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
-|       |      |       Input: raw samples source=0, contiguous, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+|       |      |   FusedSeriesExec: (output: series_frame) metrics=[]|
+|       |      |   native_tree=[|
+|       |      |   Instant: lookback 300000ms offset 0 on grid 0/5000x3, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, evaluated_grid_points: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+|       |      |     Input: raw samples source=0, contiguous, metrics=[input_batches: 2, output_batches: 2, input_samples: 4, output_values: 4, completed_series: 2, self_compute_time_ns: REDACTED, peak_reserved_bytes: REDACTED]|
+|       |      |   ]|
 |       |      |     CooperativeExec metrics=[]|
 |       |      |       SeriesScanExec REDACTED
 |       |      ||

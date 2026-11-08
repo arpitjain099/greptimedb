@@ -380,30 +380,49 @@ TQL EXPLAIN (0, 10, '5s') {"otel.m"} and {"otel.m", "Host"="h1"};
 +-+-+
 | plan_type_| plan_|
 +-+-+
-| logical_plan_| FusedSeries: {__name__="otel.m"} and {Host="h1",__name__="otel.m"}_|
-|_|_FusedSeries: segment (output: series_frame)_|
+| logical_plan_| FusedSeries_|
+|_| native_tree=[_|
+|_| Set: and ignoring []_|
+|_|_Input: evaluated samples source=0, contiguous_|
+|_|_Input: evaluated samples source=1, contiguous_|
+|_| ]_|
+|_|_FusedSeries: (output: series_frame)_|
+|_| native_tree=[_|
+|_| Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
+|_|_Input: raw samples source=0, contiguous_|
+|_| ]_|
 |_|_MergeScan [is_placeholder=false, remote_input=[_|
 |_| RawSeriesSource: metric=otel.m, tags=[service.name, Host, host], fields=[v.val]_|
 |_|_TableScan: otel.m, partial_filters=[ts.time > TimestampMillisecond(-300000, None) AND ts.time <= TimestampMillisecond(10000, None)]_|
 |_| ]]_|
-|_|_FusedSeries: segment (output: series_frame)_|
+|_|_FusedSeries: (output: series_frame)_|
+|_| native_tree=[_|
+|_| Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
+|_|_Input: raw samples source=0, contiguous_|
+|_| ]_|
 |_|_MergeScan [is_placeholder=false, remote_input=[_|
 |_| RawSeriesSource: metric=otel.m, tags=[service.name, Host, host], fields=[v.val]_|
 |_|_TableScan: otel.m, partial_filters=[Host = Utf8("h1"), ts.time > TimestampMillisecond(-300000, None) AND ts.time <= TimestampMillisecond(10000, None)] |
 |_| ]]_|
-| physical_plan | FusedSeriesExec: {__name__="otel.m"} and {Host="h1",__name__="otel.m"}_|
-|_|_Set: and ignoring []_|
+| physical_plan | FusedSeriesExec_|
+|_| native_tree=[_|
+|_| Set: and ignoring []_|
 |_|_Input: evaluated samples source=0, contiguous_|
 |_|_Input: evaluated samples source=1, contiguous_|
+|_| ]_|
 |_|_SeriesRepartitionExec: outputs=1, input_partitions=2_|
-|_|_FusedSeriesExec: segment (output: series_frame)_|
-|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
+|_|_FusedSeriesExec: (output: series_frame)_|
+|_| native_tree=[_|
+|_| Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
 |_|_Input: raw samples source=0, contiguous_|
+|_| ]_|
 |_|_MergeScanExec: REDACTED
 |_|_SeriesRepartitionExec: outputs=1, input_partitions=2_|
-|_|_FusedSeriesExec: segment (output: series_frame)_|
-|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
+|_|_FusedSeriesExec: (output: series_frame)_|
+|_| native_tree=[_|
+|_| Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
 |_|_Input: raw samples source=0, contiguous_|
+|_| ]_|
 |_|_MergeScanExec: REDACTED
 |_|_|
 +-+-+
@@ -417,19 +436,31 @@ TQL EXPLAIN (0, 10, '5s') topk(1, {"otel.m"});
 +-+-+
 | plan_type_| plan_|
 +-+-+
-| logical_plan_| FusedSeries: topk(1, {__name__="otel.m"})_|
-|_|_FusedSeries: segment (output: series_frame)_|
+| logical_plan_| FusedSeries_|
+|_| native_tree=[_|
+|_| Vector: topk 1 by []_|
+|_|_Input: evaluated samples source=0, contiguous_|
+|_| ]_|
+|_|_FusedSeries: (output: series_frame)_|
+|_| native_tree=[_|
+|_| Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
+|_|_Input: raw samples source=0, contiguous_|
+|_| ]_|
 |_|_MergeScan [is_placeholder=false, remote_input=[_|
 |_| RawSeriesSource: metric=otel.m, tags=[service.name, Host, host], fields=[v.val]_|
 |_|_TableScan: otel.m, partial_filters=[ts.time > TimestampMillisecond(-300000, None) AND ts.time <= TimestampMillisecond(10000, None)] |
 |_| ]]_|
-| physical_plan | FusedSeriesExec: topk(1, {__name__="otel.m"})_|
-|_|_Vector: topk 1 by []_|
+| physical_plan | FusedSeriesExec_|
+|_| native_tree=[_|
+|_| Vector: topk 1 by []_|
 |_|_Input: evaluated samples source=0, contiguous_|
+|_| ]_|
 |_|_SeriesRepartitionExec: outputs=1, input_partitions=2_|
-|_|_FusedSeriesExec: segment (output: series_frame)_|
-|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
+|_|_FusedSeriesExec: (output: series_frame)_|
+|_| native_tree=[_|
+|_| Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
 |_|_Input: raw samples source=0, contiguous_|
+|_| ]_|
 |_|_MergeScanExec: REDACTED
 |_|_|
 +-+-+
@@ -443,20 +474,33 @@ TQL EXPLAIN (5, 10, '5s') sum by ("service.name") (increase({"otel.m"}[10s]));
 +-+-+
 | plan_type_| plan_|
 +-+-+
-| logical_plan_| FusedSeries: sum by ("service.name") (increase({__name__="otel.m"}[10s]))_|
-|_|_FusedSeries: sum by ("service.name") (increase({__name__="otel.m"}[10s])) (output: series_frame)_|
+| logical_plan_| FusedSeries_|
+|_| native_tree=[_|
+|_| Aggregate: sum by [service.name] final_|
+|_|_Input: aggregate state_|
+|_| ]_|
+|_|_FusedSeries: (output: series_frame)_|
+|_| native_tree=[_|
+|_| Aggregate: sum by [service.name] partial_|
+|_|_Window: increase [10000ms] offset 0 anchor - on grid 5000/5000x2_|
+|_|_Input: raw samples source=0, contiguous_|
+|_| ]_|
 |_|_MergeScan [is_placeholder=false, remote_input=[_|
 |_| RawSeriesSource: metric=otel.m, tags=[service.name, Host, host], fields=[v.val]_|
 |_|_TableScan: otel.m, partial_filters=[ts.time > TimestampMillisecond(-5000, None) AND ts.time <= TimestampMillisecond(10000, None)] |
 |_| ]]_|
-| physical_plan | FusedSeriesExec: sum by ("service.name") (increase({__name__="otel.m"}[10s]))_|
-|_|_Aggregate: sum by [service.name] final_|
+| physical_plan | FusedSeriesExec_|
+|_| native_tree=[_|
+|_| Aggregate: sum by [service.name] final_|
 |_|_Input: aggregate state_|
+|_| ]_|
 |_|_SeriesRepartitionExec: outputs=4, input_partitions=2_|
-|_|_FusedSeriesExec: sum by ("service.name") (increase({__name__="otel.m"}[10s])) (output: series_frame)_|
-|_|_Aggregate: sum by [service.name] partial_|
+|_|_FusedSeriesExec: (output: series_frame)_|
+|_| native_tree=[_|
+|_| Aggregate: sum by [service.name] partial_|
 |_|_Window: increase [10000ms] offset 0 anchor - on grid 5000/5000x2_|
 |_|_Input: raw samples source=0, contiguous_|
+|_| ]_|
 |_|_MergeScanExec: REDACTED
 |_|_|
 +-+-+
@@ -470,18 +514,30 @@ TQL EXPLAIN (0, 10, '5s') histogram_quantile(0.5, {"otel.h"});
 +-+-+
 | plan_type_| plan_|
 +-+-+
-| logical_plan_| FusedSeries: histogram_quantile(0.5, {__name__="otel.h"})_|
-|_|_FusedSeries: segment (output: series_frame)_|
+| logical_plan_| FusedSeries_|
+|_| native_tree=[_|
+|_| Vector: histogram_quantile 0.5_|
+|_|_Input: evaluated samples source=0, contiguous_|
+|_| ]_|
+|_|_FusedSeries: (output: series_frame)_|
+|_| native_tree=[_|
+|_| Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
+|_|_Input: raw samples source=0, contiguous_|
+|_| ]_|
 |_|_MergeScan [is_placeholder=false, remote_input=[_|
 |_| RawSeriesSource: metric=otel.h, tags=[service.name, le], fields=[v.val]_|
 |_|_TableScan: otel.h, partial_filters=[ts.time > TimestampMillisecond(-300000, None) AND ts.time <= TimestampMillisecond(10000, None)] |
 |_| ]]_|
-| physical_plan | FusedSeriesExec: histogram_quantile(0.5, {__name__="otel.h"})_|
-|_|_Vector: histogram_quantile 0.5_|
+| physical_plan | FusedSeriesExec_|
+|_| native_tree=[_|
+|_| Vector: histogram_quantile 0.5_|
 |_|_Input: evaluated samples source=0, contiguous_|
-|_|_FusedSeriesExec: segment (output: series_frame)_|
-|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
+|_| ]_|
+|_|_FusedSeriesExec: (output: series_frame)_|
+|_| native_tree=[_|
+|_| Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
 |_|_Input: raw samples source=0, contiguous_|
+|_| ]_|
 |_|_CooperativeExec_|
 |_|_MergeScanExec: REDACTED
 |_|_|

@@ -15,14 +15,20 @@ TQL EXPLAIN (0, 10, '5s') test;
 +---------------+-------------------------------------------------------------------------------------------------------------------------+
 | plan_type     | plan                                                                                                                    |
 +---------------+-------------------------------------------------------------------------------------------------------------------------+
-| logical_plan  | FusedSeries: test                                                                                                       |
+| logical_plan  | FusedSeries                                                                                                             |
+|               | native_tree=[                                                                                                           |
+|               | Instant: lookback 300000ms offset 0 on grid 0/5000x3                                                                    |
+|               |   Input: raw samples source=0, contiguous                                                                               |
+|               | ]                                                                                                                       |
 |               |   MergeScan [is_placeholder=false, remote_input=[                                                                       |
 |               | RawSeriesSource: metric=test, tags=[k], fields=[i]                                                                      |
 |               |   TableScan: test, partial_filters=[j > TimestampMillisecond(-300000, None) AND j <= TimestampMillisecond(10000, None)] |
 |               | ]]                                                                                                                      |
-| physical_plan | FusedSeriesExec: test                                                                                                   |
-|               |   Instant: lookback 300000ms offset 0 on grid 0/5000x3                                                                  |
-|               |     Input: raw samples source=0, contiguous                                                                             |
+| physical_plan | FusedSeriesExec                                                                                                         |
+|               | native_tree=[                                                                                                           |
+|               | Instant: lookback 300000ms offset 0 on grid 0/5000x3                                                                    |
+|               |   Input: raw samples source=0, contiguous                                                                               |
+|               | ]                                                                                                                       |
 |               |   CooperativeExec                                                                                                       |
 |               |     MergeScanExec: REDACTED
 |               |                                                                                                                         |
@@ -37,14 +43,20 @@ TQL EXPLAIN (0, 10, '1s', '2s') test;
 +---------------+-----------------------------------------------------------------------------------------------------------------------+
 | plan_type     | plan                                                                                                                  |
 +---------------+-----------------------------------------------------------------------------------------------------------------------+
-| logical_plan  | FusedSeries: test                                                                                                     |
+| logical_plan  | FusedSeries                                                                                                           |
+|               | native_tree=[                                                                                                         |
+|               | Instant: lookback 2000ms offset 0 on grid 0/1000x11                                                                   |
+|               |   Input: raw samples source=0, contiguous                                                                             |
+|               | ]                                                                                                                     |
 |               |   MergeScan [is_placeholder=false, remote_input=[                                                                     |
 |               | RawSeriesSource: metric=test, tags=[k], fields=[i]                                                                    |
 |               |   TableScan: test, partial_filters=[j > TimestampMillisecond(-2000, None) AND j <= TimestampMillisecond(10000, None)] |
 |               | ]]                                                                                                                    |
-| physical_plan | FusedSeriesExec: test                                                                                                 |
-|               |   Instant: lookback 2000ms offset 0 on grid 0/1000x11                                                                 |
-|               |     Input: raw samples source=0, contiguous                                                                           |
+| physical_plan | FusedSeriesExec                                                                                                       |
+|               | native_tree=[                                                                                                         |
+|               | Instant: lookback 2000ms offset 0 on grid 0/1000x11                                                                   |
+|               |   Input: raw samples source=0, contiguous                                                                             |
+|               | ]                                                                                                                     |
 |               |   CooperativeExec                                                                                                     |
 |               |     MergeScanExec: REDACTED
 |               |                                                                                                                       |
@@ -58,14 +70,20 @@ TQL EXPLAIN ('1970-01-01T00:00:00'::timestamp, '1970-01-01T00:00:00'::timestamp 
 +---------------+-------------------------------------------------------------------------------------------------------------------------+
 | plan_type     | plan                                                                                                                    |
 +---------------+-------------------------------------------------------------------------------------------------------------------------+
-| logical_plan  | FusedSeries: test                                                                                                       |
+| logical_plan  | FusedSeries                                                                                                             |
+|               | native_tree=[                                                                                                           |
+|               | Instant: lookback 300000ms offset 0 on grid 0/5000x3                                                                    |
+|               |   Input: raw samples source=0, contiguous                                                                               |
+|               | ]                                                                                                                       |
 |               |   MergeScan [is_placeholder=false, remote_input=[                                                                       |
 |               | RawSeriesSource: metric=test, tags=[k], fields=[i]                                                                      |
 |               |   TableScan: test, partial_filters=[j > TimestampMillisecond(-300000, None) AND j <= TimestampMillisecond(10000, None)] |
 |               | ]]                                                                                                                      |
-| physical_plan | FusedSeriesExec: test                                                                                                   |
-|               |   Instant: lookback 300000ms offset 0 on grid 0/5000x3                                                                  |
-|               |     Input: raw samples source=0, contiguous                                                                             |
+| physical_plan | FusedSeriesExec                                                                                                         |
+|               | native_tree=[                                                                                                           |
+|               | Instant: lookback 300000ms offset 0 on grid 0/5000x3                                                                    |
+|               |   Input: raw samples source=0, contiguous                                                                               |
+|               | ]                                                                                                                       |
 |               |   CooperativeExec                                                                                                       |
 |               |     MergeScanExec: REDACTED
 |               |                                                                                                                         |
@@ -83,7 +101,11 @@ TQL EXPLAIN VERBOSE (0, 10, '5s') test;
 +-+-+
 | plan_type_| plan_|
 +-+-+
-| initial_logical_plan_| FusedSeries: test_|
+| initial_logical_plan_| FusedSeries_|
+|_| native_tree=[_|
+|_| Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
+|_|_Input: raw samples source=0, contiguous_|
+|_| ]_|
 |_|_RawSeriesSource: metric=test, tags=[k], fields=[i]_|
 |_|_TableScan: test, partial_filters=[j > TimestampMillisecond(-300000, None) AND j <= TimestampMillisecond(10000, None)]_|
 | logical_plan after apply_function_rewrites_| SAME TEXT AS ABOVE_|
@@ -93,7 +115,11 @@ TQL EXPLAIN VERBOSE (0, 10, '5s') test;
 | logical_plan after resolve_grouping_function_| SAME TEXT AS ABOVE_|
 | logical_plan after type_coercion_| SAME TEXT AS ABOVE_|
 | logical_plan after ConstNormalizationRule_| SAME TEXT AS ABOVE_|
-| logical_plan after DistPlannerAnalyzer_| FusedSeries: test_|
+| logical_plan after DistPlannerAnalyzer_| FusedSeries_|
+|_| native_tree=[_|
+|_| Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
+|_|_Input: raw samples source=0, contiguous_|
+|_| ]_|
 |_|_MergeScan [is_placeholder=false, remote_input=[_|
 |_| RawSeriesSource: metric=test, tags=[k], fields=[i]_|
 |_|_TableScan: test, partial_filters=[j > TimestampMillisecond(-300000, None) AND j <= TimestampMillisecond(10000, None)]_|
@@ -129,30 +155,42 @@ TQL EXPLAIN VERBOSE (0, 10, '5s') test;
 | logical_plan after optimize_projections_| SAME TEXT AS ABOVE_|
 | logical_plan after ScanHintRule_| SAME TEXT AS ABOVE_|
 | logical_plan after JsonTypeConcretizeRule_| SAME TEXT AS ABOVE_|
-| logical_plan_| FusedSeries: test_|
+| logical_plan_| FusedSeries_|
+|_| native_tree=[_|
+|_| Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
+|_|_Input: raw samples source=0, contiguous_|
+|_| ]_|
 |_|_MergeScan [is_placeholder=false, remote_input=[_|
 |_| RawSeriesSource: metric=test, tags=[k], fields=[i]_|
 |_|_TableScan: test, partial_filters=[j > TimestampMillisecond(-300000, None) AND j <= TimestampMillisecond(10000, None)]_|
 |_| ]]_|
-| initial_physical_plan_| FusedSeriesExec: test_|
-|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
+| initial_physical_plan_| FusedSeriesExec_|
+|_| native_tree=[_|
+|_| Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
 |_|_Input: raw samples source=0, contiguous_|
+|_| ]_|
 |_|_MergeScanExec: REDACTED
 |_|_|
-| initial_physical_plan_with_stats_| FusedSeriesExec: test_|
-|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
-|_|_Input: raw samples source=0, contiguous, statistics=[Rows=Absent, Bytes=Absent, [(Col[0]:),(Col[1]:),(Col[2]:)]]_|
+| initial_physical_plan_with_stats_| FusedSeriesExec_|
+|_| native_tree=[_|
+|_| Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
+|_|_Input: raw samples source=0, contiguous_|
+|_| ], statistics=[Rows=Absent, Bytes=Absent, [(Col[0]:),(Col[1]:),(Col[2]:)]]_|
 |_|_MergeScanExec: REDACTED
 |_|_|
-| initial_physical_plan_with_schema_| FusedSeriesExec: test_|
-|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
-|_|_Input: raw samples source=0, contiguous, schema=[j:Timestamp(ms), i:Float64;N, k:Utf8;N]_|
+| initial_physical_plan_with_schema_| FusedSeriesExec_|
+|_| native_tree=[_|
+|_| Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
+|_|_Input: raw samples source=0, contiguous_|
+|_| ], schema=[j:Timestamp(ms), i:Float64;N, k:Utf8;N]_|
 |_|_MergeScanExec: REDACTED
 |_|_|
 | physical_plan after OutputRequirements_| OutputRequirementExec: order_by=[], dist_by=Unspecified_|
-|_|_FusedSeriesExec: test_|
-|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
+|_|_FusedSeriesExec_|
+|_| native_tree=[_|
+|_| Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
 |_|_Input: raw samples source=0, contiguous_|
+|_| ]_|
 |_|_MergeScanExec: REDACTED
 |_|_|
 | physical_plan after aggregate_statistics_| SAME TEXT AS ABOVE_|
@@ -167,9 +205,11 @@ TQL EXPLAIN VERBOSE (0, 10, '5s') test;
 | physical_plan after CombinePartialFinalAggregate_| SAME TEXT AS ABOVE_|
 | physical_plan after OptimizeAggregateOrder_| SAME TEXT AS ABOVE_|
 | physical_plan after ProjectionPushdown_| SAME TEXT AS ABOVE_|
-| physical_plan after OutputRequirements_| FusedSeriesExec: test_|
-|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
+| physical_plan after OutputRequirements_| FusedSeriesExec_|
+|_| native_tree=[_|
+|_| Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
 |_|_Input: raw samples source=0, contiguous_|
+|_| ]_|
 |_|_MergeScanExec: REDACTED
 |_|_|
 | physical_plan after LimitAggregation_| SAME TEXT AS ABOVE_|
@@ -179,9 +219,11 @@ TQL EXPLAIN VERBOSE (0, 10, '5s') test;
 | physical_plan after TopKRepartition_| SAME TEXT AS ABOVE_|
 | physical_plan after ProjectionPushdown_| SAME TEXT AS ABOVE_|
 | physical_plan after PushdownSort_| SAME TEXT AS ABOVE_|
-| physical_plan after EnsureCooperative_| FusedSeriesExec: test_|
-|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
+| physical_plan after EnsureCooperative_| FusedSeriesExec_|
+|_| native_tree=[_|
+|_| Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
 |_|_Input: raw samples source=0, contiguous_|
+|_| ]_|
 |_|_CooperativeExec_|
 |_|_MergeScanExec: REDACTED
 |_|_|
@@ -192,21 +234,27 @@ TQL EXPLAIN VERBOSE (0, 10, '5s') test;
 | physical_plan after RemoveDuplicateRule_| SAME TEXT AS ABOVE_|
 | physical_plan after SeriesFrameOutput_| SAME TEXT AS ABOVE_|
 | physical_plan after SanityCheckPlan_| SAME TEXT AS ABOVE_|
-| physical_plan_| FusedSeriesExec: test_|
-|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
+| physical_plan_| FusedSeriesExec_|
+|_| native_tree=[_|
+|_| Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
 |_|_Input: raw samples source=0, contiguous_|
+|_| ]_|
 |_|_CooperativeExec_|
 |_|_MergeScanExec: REDACTED
 |_|_|
-| physical_plan_with_stats_| FusedSeriesExec: test_|
-|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
-|_|_Input: raw samples source=0, contiguous, statistics=[Rows=Absent, Bytes=Absent, [(Col[0]:),(Col[1]:),(Col[2]:)]]_|
+| physical_plan_with_stats_| FusedSeriesExec_|
+|_| native_tree=[_|
+|_| Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
+|_|_Input: raw samples source=0, contiguous_|
+|_| ], statistics=[Rows=Absent, Bytes=Absent, [(Col[0]:),(Col[1]:),(Col[2]:)]]_|
 |_|_CooperativeExec, statistics=[Rows=Absent, Bytes=Absent, [(Col[0]:),(Col[1]:),(Col[2]:),(Col[3]:),(Col[4]:),(Col[5]:)]]_|
 |_|_MergeScanExec: REDACTED
 |_|_|
-| physical_plan_with_schema_| FusedSeriesExec: test_|
-|_|_Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
-|_|_Input: raw samples source=0, contiguous, schema=[j:Timestamp(ms), i:Float64;N, k:Utf8;N]_|
+| physical_plan_with_schema_| FusedSeriesExec_|
+|_| native_tree=[_|
+|_| Instant: lookback 300000ms offset 0 on grid 0/5000x3_|
+|_|_Input: raw samples source=0, contiguous_|
+|_| ], schema=[j:Timestamp(ms), i:Float64;N, k:Utf8;N]_|
 |_|_CooperativeExec, schema=[read_key:Binary;N, is_last:Boolean, time:Struct("timestamps": non-null List(non-null Int64)), fields:Struct("i": non-null Struct("float_values": List(Float64), "histogram": Struct("indices": non-null List(UInt32), "table": non-null List(non-null Struct("schema": non-null Int32, "zero_threshold": non-null Float64, "sum": non-null Float64, "count": non-null Float64, "zero_count": non-null Float64, "reset_hint": non-null Int32, "start_timestamp": Int64, "custom_values": non-null List(non-null Float64), "positive_span_offsets": non-null List(non-null Int32), "positive_span_lengths": non-null List(non-null Int32), "positive_buckets": non-null List(non-null Float64), "negative_span_offsets": non-null List(non-null Int32), "negative_span_lengths": non-null List(non-null Int32), "negative_buckets": non-null List(non-null Float64)))))), name:Utf8;N, labels:List(non-null Struct("name": non-null Utf8, "value": non-null Utf8))]_|
 |_|_MergeScanExec: REDACTED
 |_|_|

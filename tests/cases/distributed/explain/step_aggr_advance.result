@@ -24,20 +24,33 @@ tql explain (1752591864, 1752592164, '30s') max by (a, b, c) (max_over_time(aggr
 +---------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | plan_type     | plan                                                                                                                                                                                 |
 +---------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| logical_plan  | FusedSeries: max by (a, b, c) (max_over_time(aggr_optimize_not[2m]))                                                                                                                 |
-|               |   FusedSeries: max by (a, b, c) (max_over_time(aggr_optimize_not[2m])) (output: series_frame)                                                                                        |
+| logical_plan  | FusedSeries                                                                                                                                                                          |
+|               | native_tree=[                                                                                                                                                                        |
+|               | Aggregate: max by [a, b, c] final                                                                                                                                                    |
+|               |   Input: aggregate state                                                                                                                                                             |
+|               | ]                                                                                                                                                                                    |
+|               |   FusedSeries: (output: series_frame)                                                                                                                                                |
+|               | native_tree=[                                                                                                                                                                        |
+|               | Aggregate: max by [a, b, c] partial                                                                                                                                                  |
+|               |   Window: max_over_time [120000ms] offset 0 anchor - on grid 1752591864000/30000x11                                                                                                  |
+|               |     Input: raw samples source=0, contiguous                                                                                                                                          |
+|               | ]                                                                                                                                                                                    |
 |               |     MergeScan [is_placeholder=false, remote_input=[                                                                                                                                  |
 |               | RawSeriesSource: metric=aggr_optimize_not, tags=[a, b, c, d], fields=[greptime_value]                                                                                                |
 |               |   TableScan: aggr_optimize_not, partial_filters=[greptime_timestamp > TimestampMillisecond(1752591744000, None) AND greptime_timestamp <= TimestampMillisecond(1752592164000, None)] |
 |               | ]]                                                                                                                                                                                   |
-| physical_plan | FusedSeriesExec: max by (a, b, c) (max_over_time(aggr_optimize_not[2m]))                                                                                                             |
-|               |   Aggregate: max by [a, b, c] final                                                                                                                                                  |
-|               |     Input: aggregate state                                                                                                                                                           |
+| physical_plan | FusedSeriesExec                                                                                                                                                                      |
+|               | native_tree=[                                                                                                                                                                        |
+|               | Aggregate: max by [a, b, c] final                                                                                                                                                    |
+|               |   Input: aggregate state                                                                                                                                                             |
+|               | ]                                                                                                                                                                                    |
 |               |   SeriesRepartitionExec: outputs=4, input_partitions=2                                                                                                                               |
-|               |     FusedSeriesExec: max by (a, b, c) (max_over_time(aggr_optimize_not[2m])) (output: series_frame)                                                                                  |
-|               |   Aggregate: max by [a, b, c] partial                                                                                                                                                |
-|               |     Window: max_over_time [120000ms] offset 0 anchor - on grid 1752591864000/30000x11                                                                                                |
-|               |       Input: raw samples source=0, contiguous                                                                                                                                        |
+|               |     FusedSeriesExec: (output: series_frame)                                                                                                                                          |
+|               | native_tree=[                                                                                                                                                                        |
+|               | Aggregate: max by [a, b, c] partial                                                                                                                                                  |
+|               |   Window: max_over_time [120000ms] offset 0 anchor - on grid 1752591864000/30000x11                                                                                                  |
+|               |     Input: raw samples source=0, contiguous                                                                                                                                          |
+|               | ]                                                                                                                                                                                    |
 |               |       MergeScanExec: REDACTED
 |               |                                                                                                                                                                                      |
 +---------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -54,14 +67,18 @@ tql analyze (1752591864, 1752592164, '30s') max by (a, b, c) (max_over_time(aggr
 +-+-+-+
 | stage | node | plan_|
 +-+-+-+
-| 0_| 0_|_FusedSeriesExec: max by (a, b, c) (max_over_time(aggr_optimize_not[2m])) REDACTED
+| 0_| 0_|_FusedSeriesExec REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Aggregate: max by [a, b, c] final, REDACTED
 |_|_|_Input: aggregate state_|
+|_|_|_]_|
 |_|_|_SeriesRepartitionExec REDACTED
-|_|_|_FusedSeriesExec: max by (a, b, c) (max_over_time(aggr_optimize_not[2m])) (output: series_frame) REDACTED
+|_|_|_FusedSeriesExec: (output: series_frame) REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Aggregate: max by [a, b, c] partial, REDACTED
 |_|_|_Window: max_over_time [120000ms] offset 0 anchor - on grid 1752591864000/30000x11_|
 |_|_|_Input: raw samples source=0, contiguous_|
+|_|_|_]_|
 |_|_|_MergeScanExec: REDACTED
 |_|_|_|
 | 1_| 0_|_SeriesRepartitionExec REDACTED
@@ -86,20 +103,33 @@ tql explain (1752591864, 1752592164, '30s') sum by (a, b) (max_over_time(aggr_op
 +---------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | plan_type     | plan                                                                                                                                                                                 |
 +---------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| logical_plan  | FusedSeries: sum by (a, b) (max_over_time(aggr_optimize_not[2m]))                                                                                                                    |
-|               |   FusedSeries: sum by (a, b) (max_over_time(aggr_optimize_not[2m])) (output: series_frame)                                                                                           |
+| logical_plan  | FusedSeries                                                                                                                                                                          |
+|               | native_tree=[                                                                                                                                                                        |
+|               | Aggregate: sum by [a, b] final                                                                                                                                                       |
+|               |   Input: aggregate state                                                                                                                                                             |
+|               | ]                                                                                                                                                                                    |
+|               |   FusedSeries: (output: series_frame)                                                                                                                                                |
+|               | native_tree=[                                                                                                                                                                        |
+|               | Aggregate: sum by [a, b] partial                                                                                                                                                     |
+|               |   Window: max_over_time [120000ms] offset 0 anchor - on grid 1752591864000/30000x11                                                                                                  |
+|               |     Input: raw samples source=0, contiguous                                                                                                                                          |
+|               | ]                                                                                                                                                                                    |
 |               |     MergeScan [is_placeholder=false, remote_input=[                                                                                                                                  |
 |               | RawSeriesSource: metric=aggr_optimize_not, tags=[a, b, c, d], fields=[greptime_value]                                                                                                |
 |               |   TableScan: aggr_optimize_not, partial_filters=[greptime_timestamp > TimestampMillisecond(1752591744000, None) AND greptime_timestamp <= TimestampMillisecond(1752592164000, None)] |
 |               | ]]                                                                                                                                                                                   |
-| physical_plan | FusedSeriesExec: sum by (a, b) (max_over_time(aggr_optimize_not[2m]))                                                                                                                |
-|               |   Aggregate: sum by [a, b] final                                                                                                                                                     |
-|               |     Input: aggregate state                                                                                                                                                           |
+| physical_plan | FusedSeriesExec                                                                                                                                                                      |
+|               | native_tree=[                                                                                                                                                                        |
+|               | Aggregate: sum by [a, b] final                                                                                                                                                       |
+|               |   Input: aggregate state                                                                                                                                                             |
+|               | ]                                                                                                                                                                                    |
 |               |   SeriesRepartitionExec: outputs=4, input_partitions=2                                                                                                                               |
-|               |     FusedSeriesExec: sum by (a, b) (max_over_time(aggr_optimize_not[2m])) (output: series_frame)                                                                                     |
-|               |   Aggregate: sum by [a, b] partial                                                                                                                                                   |
-|               |     Window: max_over_time [120000ms] offset 0 anchor - on grid 1752591864000/30000x11                                                                                                |
-|               |       Input: raw samples source=0, contiguous                                                                                                                                        |
+|               |     FusedSeriesExec: (output: series_frame)                                                                                                                                          |
+|               | native_tree=[                                                                                                                                                                        |
+|               | Aggregate: sum by [a, b] partial                                                                                                                                                     |
+|               |   Window: max_over_time [120000ms] offset 0 anchor - on grid 1752591864000/30000x11                                                                                                  |
+|               |     Input: raw samples source=0, contiguous                                                                                                                                          |
+|               | ]                                                                                                                                                                                    |
 |               |       MergeScanExec: REDACTED
 |               |                                                                                                                                                                                      |
 +---------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -116,14 +146,18 @@ tql analyze (1752591864, 1752592164, '30s') sum by (a, b) (max_over_time(aggr_op
 +-+-+-+
 | stage | node | plan_|
 +-+-+-+
-| 0_| 0_|_FusedSeriesExec: sum by (a, b) (max_over_time(aggr_optimize_not[2m])) REDACTED
+| 0_| 0_|_FusedSeriesExec REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Aggregate: sum by [a, b] final, REDACTED
 |_|_|_Input: aggregate state_|
+|_|_|_]_|
 |_|_|_SeriesRepartitionExec REDACTED
-|_|_|_FusedSeriesExec: sum by (a, b) (max_over_time(aggr_optimize_not[2m])) (output: series_frame) REDACTED
+|_|_|_FusedSeriesExec: (output: series_frame) REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Aggregate: sum by [a, b] partial, REDACTED
 |_|_|_Window: max_over_time [120000ms] offset 0 anchor - on grid 1752591864000/30000x11_|
 |_|_|_Input: raw samples source=0, contiguous_|
+|_|_|_]_|
 |_|_|_MergeScanExec: REDACTED
 |_|_|_|
 | 1_| 0_|_SeriesRepartitionExec REDACTED
@@ -148,20 +182,33 @@ tql explain (1752591864, 1752592164, '30s') avg by (a) (max_over_time(aggr_optim
 +---------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | plan_type     | plan                                                                                                                                                                                 |
 +---------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| logical_plan  | FusedSeries: avg by (a) (max_over_time(aggr_optimize_not[2m]))                                                                                                                       |
-|               |   FusedSeries: avg by (a) (max_over_time(aggr_optimize_not[2m])) (output: series_frame)                                                                                              |
+| logical_plan  | FusedSeries                                                                                                                                                                          |
+|               | native_tree=[                                                                                                                                                                        |
+|               | Aggregate: avg by [a] final                                                                                                                                                          |
+|               |   Input: aggregate state                                                                                                                                                             |
+|               | ]                                                                                                                                                                                    |
+|               |   FusedSeries: (output: series_frame)                                                                                                                                                |
+|               | native_tree=[                                                                                                                                                                        |
+|               | Aggregate: avg by [a] partial                                                                                                                                                        |
+|               |   Window: max_over_time [120000ms] offset 0 anchor - on grid 1752591864000/30000x11                                                                                                  |
+|               |     Input: raw samples source=0, contiguous                                                                                                                                          |
+|               | ]                                                                                                                                                                                    |
 |               |     MergeScan [is_placeholder=false, remote_input=[                                                                                                                                  |
 |               | RawSeriesSource: metric=aggr_optimize_not, tags=[a, b, c, d], fields=[greptime_value]                                                                                                |
 |               |   TableScan: aggr_optimize_not, partial_filters=[greptime_timestamp > TimestampMillisecond(1752591744000, None) AND greptime_timestamp <= TimestampMillisecond(1752592164000, None)] |
 |               | ]]                                                                                                                                                                                   |
-| physical_plan | FusedSeriesExec: avg by (a) (max_over_time(aggr_optimize_not[2m]))                                                                                                                   |
-|               |   Aggregate: avg by [a] final                                                                                                                                                        |
-|               |     Input: aggregate state                                                                                                                                                           |
+| physical_plan | FusedSeriesExec                                                                                                                                                                      |
+|               | native_tree=[                                                                                                                                                                        |
+|               | Aggregate: avg by [a] final                                                                                                                                                          |
+|               |   Input: aggregate state                                                                                                                                                             |
+|               | ]                                                                                                                                                                                    |
 |               |   SeriesRepartitionExec: outputs=4, input_partitions=2                                                                                                                               |
-|               |     FusedSeriesExec: avg by (a) (max_over_time(aggr_optimize_not[2m])) (output: series_frame)                                                                                        |
-|               |   Aggregate: avg by [a] partial                                                                                                                                                      |
-|               |     Window: max_over_time [120000ms] offset 0 anchor - on grid 1752591864000/30000x11                                                                                                |
-|               |       Input: raw samples source=0, contiguous                                                                                                                                        |
+|               |     FusedSeriesExec: (output: series_frame)                                                                                                                                          |
+|               | native_tree=[                                                                                                                                                                        |
+|               | Aggregate: avg by [a] partial                                                                                                                                                        |
+|               |   Window: max_over_time [120000ms] offset 0 anchor - on grid 1752591864000/30000x11                                                                                                  |
+|               |     Input: raw samples source=0, contiguous                                                                                                                                          |
+|               | ]                                                                                                                                                                                    |
 |               |       MergeScanExec: REDACTED
 |               |                                                                                                                                                                                      |
 +---------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -178,14 +225,18 @@ tql analyze (1752591864, 1752592164, '30s') avg by (a) (max_over_time(aggr_optim
 +-+-+-+
 | stage | node | plan_|
 +-+-+-+
-| 0_| 0_|_FusedSeriesExec: avg by (a) (max_over_time(aggr_optimize_not[2m])) REDACTED
+| 0_| 0_|_FusedSeriesExec REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Aggregate: avg by [a] final, REDACTED
 |_|_|_Input: aggregate state_|
+|_|_|_]_|
 |_|_|_SeriesRepartitionExec REDACTED
-|_|_|_FusedSeriesExec: avg by (a) (max_over_time(aggr_optimize_not[2m])) (output: series_frame) REDACTED
+|_|_|_FusedSeriesExec: (output: series_frame) REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Aggregate: avg by [a] partial, REDACTED
 |_|_|_Window: max_over_time [120000ms] offset 0 anchor - on grid 1752591864000/30000x11_|
 |_|_|_Input: raw samples source=0, contiguous_|
+|_|_|_]_|
 |_|_|_MergeScanExec: REDACTED
 |_|_|_|
 | 1_| 0_|_SeriesRepartitionExec REDACTED
@@ -210,20 +261,33 @@ tql explain (1752591864, 1752592164, '30s') count by (a, b, c, d) (max_over_time
 +---------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | plan_type     | plan                                                                                                                                                                                 |
 +---------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| logical_plan  | FusedSeries: count by (a, b, c, d) (max_over_time(aggr_optimize_not[2m]))                                                                                                            |
-|               |   FusedSeries: count by (a, b, c, d) (max_over_time(aggr_optimize_not[2m])) (output: series_frame)                                                                                   |
+| logical_plan  | FusedSeries                                                                                                                                                                          |
+|               | native_tree=[                                                                                                                                                                        |
+|               | Aggregate: count by [a, b, c, d] final                                                                                                                                               |
+|               |   Input: aggregate state                                                                                                                                                             |
+|               | ]                                                                                                                                                                                    |
+|               |   FusedSeries: (output: series_frame)                                                                                                                                                |
+|               | native_tree=[                                                                                                                                                                        |
+|               | Aggregate: count by [a, b, c, d] partial                                                                                                                                             |
+|               |   Window: max_over_time [120000ms] offset 0 anchor - on grid 1752591864000/30000x11                                                                                                  |
+|               |     Input: raw samples source=0, contiguous                                                                                                                                          |
+|               | ]                                                                                                                                                                                    |
 |               |     MergeScan [is_placeholder=false, remote_input=[                                                                                                                                  |
 |               | RawSeriesSource: metric=aggr_optimize_not, tags=[a, b, c, d], fields=[greptime_value]                                                                                                |
 |               |   TableScan: aggr_optimize_not, partial_filters=[greptime_timestamp > TimestampMillisecond(1752591744000, None) AND greptime_timestamp <= TimestampMillisecond(1752592164000, None)] |
 |               | ]]                                                                                                                                                                                   |
-| physical_plan | FusedSeriesExec: count by (a, b, c, d) (max_over_time(aggr_optimize_not[2m]))                                                                                                        |
-|               |   Aggregate: count by [a, b, c, d] final                                                                                                                                             |
-|               |     Input: aggregate state                                                                                                                                                           |
+| physical_plan | FusedSeriesExec                                                                                                                                                                      |
+|               | native_tree=[                                                                                                                                                                        |
+|               | Aggregate: count by [a, b, c, d] final                                                                                                                                               |
+|               |   Input: aggregate state                                                                                                                                                             |
+|               | ]                                                                                                                                                                                    |
 |               |   SeriesRepartitionExec: outputs=4, input_partitions=2                                                                                                                               |
-|               |     FusedSeriesExec: count by (a, b, c, d) (max_over_time(aggr_optimize_not[2m])) (output: series_frame)                                                                             |
-|               |   Aggregate: count by [a, b, c, d] partial                                                                                                                                           |
-|               |     Window: max_over_time [120000ms] offset 0 anchor - on grid 1752591864000/30000x11                                                                                                |
-|               |       Input: raw samples source=0, contiguous                                                                                                                                        |
+|               |     FusedSeriesExec: (output: series_frame)                                                                                                                                          |
+|               | native_tree=[                                                                                                                                                                        |
+|               | Aggregate: count by [a, b, c, d] partial                                                                                                                                             |
+|               |   Window: max_over_time [120000ms] offset 0 anchor - on grid 1752591864000/30000x11                                                                                                  |
+|               |     Input: raw samples source=0, contiguous                                                                                                                                          |
+|               | ]                                                                                                                                                                                    |
 |               |       MergeScanExec: REDACTED
 |               |                                                                                                                                                                                      |
 +---------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -240,14 +304,18 @@ tql analyze (1752591864, 1752592164, '30s') count by (a, b, c, d) (max_over_time
 +-+-+-+
 | stage | node | plan_|
 +-+-+-+
-| 0_| 0_|_FusedSeriesExec: count by (a, b, c, d) (max_over_time(aggr_optimize_not[2m])) REDACTED
+| 0_| 0_|_FusedSeriesExec REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Aggregate: count by [a, b, c, d] final, REDACTED
 |_|_|_Input: aggregate state_|
+|_|_|_]_|
 |_|_|_SeriesRepartitionExec REDACTED
-|_|_|_FusedSeriesExec: count by (a, b, c, d) (max_over_time(aggr_optimize_not[2m])) (output: series_frame) REDACTED
+|_|_|_FusedSeriesExec: (output: series_frame) REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Aggregate: count by [a, b, c, d] partial, REDACTED
 |_|_|_Window: max_over_time [120000ms] offset 0 anchor - on grid 1752591864000/30000x11_|
 |_|_|_Input: raw samples source=0, contiguous_|
+|_|_|_]_|
 |_|_|_MergeScanExec: REDACTED
 |_|_|_|
 | 1_| 0_|_SeriesRepartitionExec REDACTED
@@ -272,20 +340,33 @@ tql explain (1752591864, 1752592164, '30s') min by (b, c, d) (max_over_time(aggr
 +---------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | plan_type     | plan                                                                                                                                                                                 |
 +---------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| logical_plan  | FusedSeries: min by (b, c, d) (max_over_time(aggr_optimize_not[2m]))                                                                                                                 |
-|               |   FusedSeries: min by (b, c, d) (max_over_time(aggr_optimize_not[2m])) (output: series_frame)                                                                                        |
+| logical_plan  | FusedSeries                                                                                                                                                                          |
+|               | native_tree=[                                                                                                                                                                        |
+|               | Aggregate: min by [b, c, d] final                                                                                                                                                    |
+|               |   Input: aggregate state                                                                                                                                                             |
+|               | ]                                                                                                                                                                                    |
+|               |   FusedSeries: (output: series_frame)                                                                                                                                                |
+|               | native_tree=[                                                                                                                                                                        |
+|               | Aggregate: min by [b, c, d] partial                                                                                                                                                  |
+|               |   Window: max_over_time [120000ms] offset 0 anchor - on grid 1752591864000/30000x11                                                                                                  |
+|               |     Input: raw samples source=0, contiguous                                                                                                                                          |
+|               | ]                                                                                                                                                                                    |
 |               |     MergeScan [is_placeholder=false, remote_input=[                                                                                                                                  |
 |               | RawSeriesSource: metric=aggr_optimize_not, tags=[a, b, c, d], fields=[greptime_value]                                                                                                |
 |               |   TableScan: aggr_optimize_not, partial_filters=[greptime_timestamp > TimestampMillisecond(1752591744000, None) AND greptime_timestamp <= TimestampMillisecond(1752592164000, None)] |
 |               | ]]                                                                                                                                                                                   |
-| physical_plan | FusedSeriesExec: min by (b, c, d) (max_over_time(aggr_optimize_not[2m]))                                                                                                             |
-|               |   Aggregate: min by [b, c, d] final                                                                                                                                                  |
-|               |     Input: aggregate state                                                                                                                                                           |
+| physical_plan | FusedSeriesExec                                                                                                                                                                      |
+|               | native_tree=[                                                                                                                                                                        |
+|               | Aggregate: min by [b, c, d] final                                                                                                                                                    |
+|               |   Input: aggregate state                                                                                                                                                             |
+|               | ]                                                                                                                                                                                    |
 |               |   SeriesRepartitionExec: outputs=4, input_partitions=2                                                                                                                               |
-|               |     FusedSeriesExec: min by (b, c, d) (max_over_time(aggr_optimize_not[2m])) (output: series_frame)                                                                                  |
-|               |   Aggregate: min by [b, c, d] partial                                                                                                                                                |
-|               |     Window: max_over_time [120000ms] offset 0 anchor - on grid 1752591864000/30000x11                                                                                                |
-|               |       Input: raw samples source=0, contiguous                                                                                                                                        |
+|               |     FusedSeriesExec: (output: series_frame)                                                                                                                                          |
+|               | native_tree=[                                                                                                                                                                        |
+|               | Aggregate: min by [b, c, d] partial                                                                                                                                                  |
+|               |   Window: max_over_time [120000ms] offset 0 anchor - on grid 1752591864000/30000x11                                                                                                  |
+|               |     Input: raw samples source=0, contiguous                                                                                                                                          |
+|               | ]                                                                                                                                                                                    |
 |               |       MergeScanExec: REDACTED
 |               |                                                                                                                                                                                      |
 +---------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -302,14 +383,18 @@ tql analyze (1752591864, 1752592164, '30s') min by (b, c, d) (max_over_time(aggr
 +-+-+-+
 | stage | node | plan_|
 +-+-+-+
-| 0_| 0_|_FusedSeriesExec: min by (b, c, d) (max_over_time(aggr_optimize_not[2m])) REDACTED
+| 0_| 0_|_FusedSeriesExec REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Aggregate: min by [b, c, d] final, REDACTED
 |_|_|_Input: aggregate state_|
+|_|_|_]_|
 |_|_|_SeriesRepartitionExec REDACTED
-|_|_|_FusedSeriesExec: min by (b, c, d) (max_over_time(aggr_optimize_not[2m])) (output: series_frame) REDACTED
+|_|_|_FusedSeriesExec: (output: series_frame) REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Aggregate: min by [b, c, d] partial, REDACTED
 |_|_|_Window: max_over_time [120000ms] offset 0 anchor - on grid 1752591864000/30000x11_|
 |_|_|_Input: raw samples source=0, contiguous_|
+|_|_|_]_|
 |_|_|_MergeScanExec: REDACTED
 |_|_|_|
 | 1_| 0_|_SeriesRepartitionExec REDACTED
@@ -334,20 +419,33 @@ tql explain sum(aggr_optimize_not);
 +---------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | plan_type     | plan                                                                                                                                                               |
 +---------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| logical_plan  | FusedSeries: sum(aggr_optimize_not)                                                                                                                                |
-|               |   FusedSeries: sum(aggr_optimize_not) (output: series_frame)                                                                                                       |
+| logical_plan  | FusedSeries                                                                                                                                                        |
+|               | native_tree=[                                                                                                                                                      |
+|               | Aggregate: sum by [] final                                                                                                                                         |
+|               |   Input: aggregate state                                                                                                                                           |
+|               | ]                                                                                                                                                                  |
+|               |   FusedSeries: (output: series_frame)                                                                                                                              |
+|               | native_tree=[                                                                                                                                                      |
+|               | Aggregate: sum by [] partial                                                                                                                                       |
+|               |   Instant: lookback 300000ms offset 0 on grid 0/300000x1                                                                                                           |
+|               |     Input: raw samples source=0, contiguous                                                                                                                        |
+|               | ]                                                                                                                                                                  |
 |               |     MergeScan [is_placeholder=false, remote_input=[                                                                                                                |
 |               | RawSeriesSource: metric=aggr_optimize_not, tags=[a, b, c, d], fields=[greptime_value]                                                                              |
 |               |   TableScan: aggr_optimize_not, partial_filters=[greptime_timestamp > TimestampMillisecond(-300000, None) AND greptime_timestamp <= TimestampMillisecond(0, None)] |
 |               | ]]                                                                                                                                                                 |
-| physical_plan | FusedSeriesExec: sum(aggr_optimize_not)                                                                                                                            |
-|               |   Aggregate: sum by [] final                                                                                                                                       |
-|               |     Input: aggregate state                                                                                                                                         |
+| physical_plan | FusedSeriesExec                                                                                                                                                    |
+|               | native_tree=[                                                                                                                                                      |
+|               | Aggregate: sum by [] final                                                                                                                                         |
+|               |   Input: aggregate state                                                                                                                                           |
+|               | ]                                                                                                                                                                  |
 |               |   SeriesRepartitionExec: outputs=1, input_partitions=2                                                                                                             |
-|               |     FusedSeriesExec: sum(aggr_optimize_not) (output: series_frame)                                                                                                 |
-|               |   Aggregate: sum by [] partial                                                                                                                                     |
-|               |     Instant: lookback 300000ms offset 0 on grid 0/300000x1                                                                                                         |
-|               |       Input: raw samples source=0, contiguous                                                                                                                      |
+|               |     FusedSeriesExec: (output: series_frame)                                                                                                                        |
+|               | native_tree=[                                                                                                                                                      |
+|               | Aggregate: sum by [] partial                                                                                                                                       |
+|               |   Instant: lookback 300000ms offset 0 on grid 0/300000x1                                                                                                           |
+|               |     Input: raw samples source=0, contiguous                                                                                                                        |
+|               | ]                                                                                                                                                                  |
 |               |       MergeScanExec: REDACTED
 |               |                                                                                                                                                                    |
 +---------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -364,14 +462,18 @@ tql analyze sum(aggr_optimize_not);
 +-+-+-+
 | stage | node | plan_|
 +-+-+-+
-| 0_| 0_|_FusedSeriesExec: sum(aggr_optimize_not) REDACTED
+| 0_| 0_|_FusedSeriesExec REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Aggregate: sum by [] final, REDACTED
 |_|_|_Input: aggregate state_|
+|_|_|_]_|
 |_|_|_SeriesRepartitionExec REDACTED
-|_|_|_FusedSeriesExec: sum(aggr_optimize_not) (output: series_frame) REDACTED
+|_|_|_FusedSeriesExec: (output: series_frame) REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Aggregate: sum by [] partial, REDACTED
 |_|_|_Instant: lookback 300000ms offset 0 on grid 0/300000x1_|
 |_|_|_Input: raw samples source=0, contiguous_|
+|_|_|_]_|
 |_|_|_MergeScanExec: REDACTED
 |_|_|_|
 | 1_| 0_|_SeriesRepartitionExec REDACTED
@@ -410,32 +512,53 @@ tql explain (1752591864, 1752592164, '30s') sum by (a, b, c) (rate(aggr_optimize
 +---------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | plan_type     | plan                                                                                                                                                                                       |
 +---------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| logical_plan  | FusedSeries: sum by (a, b, c) (rate(aggr_optimize_not[2m])) / sum by (a, b, c) (rate(aggr_optimize_not_count[2m]))                                                                         |
-|               |   FusedSeries: segment (output: series_frame)                                                                                                                                              |
+| logical_plan  | FusedSeries                                                                                                                                                                                |
+|               | native_tree=[                                                                                                                                                                              |
+|               | Binary: / ignoring [] one-to-one                                                                                                                                                           |
+|               |   Aggregate: sum by [a, b, c] complete                                                                                                                                                     |
+|               |     Input: evaluated samples source=0, contiguous                                                                                                                                          |
+|               |   Aggregate: sum by [a, b, c] complete                                                                                                                                                     |
+|               |     Input: evaluated samples source=1, contiguous                                                                                                                                          |
+|               | ]                                                                                                                                                                                          |
+|               |   FusedSeries: (output: series_frame)                                                                                                                                                      |
+|               | native_tree=[                                                                                                                                                                              |
+|               | Window: rate [120000ms] offset 0 anchor - on grid 1752591864000/30000x11                                                                                                                   |
+|               |   Input: raw samples source=0, contiguous                                                                                                                                                  |
+|               | ]                                                                                                                                                                                          |
 |               |     MergeScan [is_placeholder=false, remote_input=[                                                                                                                                        |
 |               | RawSeriesSource: metric=aggr_optimize_not, tags=[a, b, c, d], fields=[greptime_value]                                                                                                      |
 |               |   TableScan: aggr_optimize_not, partial_filters=[greptime_timestamp > TimestampMillisecond(1752591744000, None) AND greptime_timestamp <= TimestampMillisecond(1752592164000, None)]       |
 |               | ]]                                                                                                                                                                                         |
-|               |   FusedSeries: segment (output: series_frame)                                                                                                                                              |
+|               |   FusedSeries: (output: series_frame)                                                                                                                                                      |
+|               | native_tree=[                                                                                                                                                                              |
+|               | Window: rate [120000ms] offset 0 anchor - on grid 1752591864000/30000x11                                                                                                                   |
+|               |   Input: raw samples source=0, contiguous                                                                                                                                                  |
+|               | ]                                                                                                                                                                                          |
 |               |     MergeScan [is_placeholder=false, remote_input=[                                                                                                                                        |
 |               | RawSeriesSource: metric=aggr_optimize_not_count, tags=[a, b, c, d], fields=[greptime_value]                                                                                                |
 |               |   TableScan: aggr_optimize_not_count, partial_filters=[greptime_timestamp > TimestampMillisecond(1752591744000, None) AND greptime_timestamp <= TimestampMillisecond(1752592164000, None)] |
 |               | ]]                                                                                                                                                                                         |
-| physical_plan | FusedSeriesExec: sum by (a, b, c) (rate(aggr_optimize_not[2m])) / sum by (a, b, c) (rate(aggr_optimize_not_count[2m]))                                                                     |
-|               |   Binary: / ignoring [] one-to-one                                                                                                                                                         |
-|               |     Aggregate: sum by [a, b, c] complete                                                                                                                                                   |
-|               |       Input: evaluated samples source=0, contiguous                                                                                                                                        |
-|               |     Aggregate: sum by [a, b, c] complete                                                                                                                                                   |
-|               |       Input: evaluated samples source=1, contiguous                                                                                                                                        |
+| physical_plan | FusedSeriesExec                                                                                                                                                                            |
+|               | native_tree=[                                                                                                                                                                              |
+|               | Binary: / ignoring [] one-to-one                                                                                                                                                           |
+|               |   Aggregate: sum by [a, b, c] complete                                                                                                                                                     |
+|               |     Input: evaluated samples source=0, contiguous                                                                                                                                          |
+|               |   Aggregate: sum by [a, b, c] complete                                                                                                                                                     |
+|               |     Input: evaluated samples source=1, contiguous                                                                                                                                          |
+|               | ]                                                                                                                                                                                          |
 |               |   SeriesRepartitionExec: outputs=1, input_partitions=2                                                                                                                                     |
-|               |     FusedSeriesExec: segment (output: series_frame)                                                                                                                                        |
-|               |   Window: rate [120000ms] offset 0 anchor - on grid 1752591864000/30000x11                                                                                                                 |
-|               |     Input: raw samples source=0, contiguous                                                                                                                                                |
+|               |     FusedSeriesExec: (output: series_frame)                                                                                                                                                |
+|               | native_tree=[                                                                                                                                                                              |
+|               | Window: rate [120000ms] offset 0 anchor - on grid 1752591864000/30000x11                                                                                                                   |
+|               |   Input: raw samples source=0, contiguous                                                                                                                                                  |
+|               | ]                                                                                                                                                                                          |
 |               |       MergeScanExec: REDACTED
 |               |   SeriesRepartitionExec: outputs=1, input_partitions=2                                                                                                                                     |
-|               |     FusedSeriesExec: segment (output: series_frame)                                                                                                                                        |
-|               |   Window: rate [120000ms] offset 0 anchor - on grid 1752591864000/30000x11                                                                                                                 |
-|               |     Input: raw samples source=0, contiguous                                                                                                                                                |
+|               |     FusedSeriesExec: (output: series_frame)                                                                                                                                                |
+|               | native_tree=[                                                                                                                                                                              |
+|               | Window: rate [120000ms] offset 0 anchor - on grid 1752591864000/30000x11                                                                                                                   |
+|               |   Input: raw samples source=0, contiguous                                                                                                                                                  |
+|               | ]                                                                                                                                                                                          |
 |               |       MergeScanExec: REDACTED
 |               |                                                                                                                                                                                            |
 +---------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -452,21 +575,27 @@ tql analyze (1752591864, 1752592164, '30s') sum by (a, b, c) (rate(aggr_optimize
 +-+-+-+
 | stage | node | plan_|
 +-+-+-+
-| 0_| 0_|_FusedSeriesExec: sum by (a, b, c) (rate(aggr_optimize_not[2m])) / sum by (a, b, c) (rate(aggr_optimize_not_count[2m])) REDACTED
+| 0_| 0_|_FusedSeriesExec REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Binary: / ignoring [] one-to-one, REDACTED
 |_|_|_Aggregate: sum by [a, b, c] complete, REDACTED
 |_|_|_Input: evaluated samples source=0, contiguous_|
 |_|_|_Aggregate: sum by [a, b, c] complete, REDACTED
 |_|_|_Input: evaluated samples source=1, contiguous_|
+|_|_|_]_|
 |_|_|_SeriesRepartitionExec REDACTED
-|_|_|_FusedSeriesExec: segment (output: series_frame) REDACTED
+|_|_|_FusedSeriesExec: (output: series_frame) REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Window: rate [120000ms] offset 0 anchor - on grid 1752591864000/30000x11_|
 |_|_|_Input: raw samples source=0, contiguous_|
+|_|_|_]_|
 |_|_|_MergeScanExec: REDACTED
 |_|_|_SeriesRepartitionExec REDACTED
-|_|_|_FusedSeriesExec: segment (output: series_frame) REDACTED
+|_|_|_FusedSeriesExec: (output: series_frame) REDACTED
+|_|_|_native_tree=[_|
 |_|_|_Window: rate [120000ms] offset 0 anchor - on grid 1752591864000/30000x11_|
 |_|_|_Input: raw samples source=0, contiguous_|
+|_|_|_]_|
 |_|_|_MergeScanExec: REDACTED
 |_|_|_|
 | 1_| 0_|_SeriesRepartitionExec REDACTED
